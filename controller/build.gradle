@@ -1,0 +1,81 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+group 'com.divisionind'
+version '2021.1.2'
+
+// returns hash of the current commit
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+repositories {
+    mavenCentral()
+
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compile 'com.github.WilliamAHartman:Jamepad:1.4.0'
+    compile 'uk.co.electronstudio.sdl2gdx:sdl2gdx:1.0.4'
+
+    // https://mvnrepository.com/artifact/org.json/json
+    compile group: 'org.json', name: 'json', version: '20210307'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClass = 'com.divisionind.hq.Controller'
+}
+
+// generates sources by replacing these strings (surrounded by @, e.g. @DivisionVersion@)
+task generateSources(type: Copy) {
+    from 'src/main/java'
+    into "$buildDir/generated-src"
+
+    filter(ReplaceTokens, tokens: [
+            'DivisionVersion': project.version,
+            'DivisionGitHash': getGitHash(),
+    ])
+}
+
+compileJava.setSource("$buildDir/generated-src")
+compileJava.dependsOn generateSources
+
+task makeJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': project.name,
+                   'Main-Class': application.mainClass
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    with jar
+}
+
+task pack(dependsOn: ['clean', 'makeJar'])
+makeJar.mustRunAfter clean
+
+javafx {
+    version = "15.0.1"
+    modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.web']
+}

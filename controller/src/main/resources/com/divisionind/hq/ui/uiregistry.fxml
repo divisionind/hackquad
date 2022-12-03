@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.divisionind.hq.ui.UIRegistry">
+   <children>
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <TableView fx:id="registryTable" editable="true" HBox.hgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="keyColumn" editable="false" minWidth="350.0" prefWidth="-1.0" text="Key" />
+                <TableColumn fx:id="valueColumn" minWidth="250.0" prefWidth="-1.0" text="Value" />
+              </columns>
+            </TableView>
+         </children>
+      </HBox>
+   </children>
+</VBox>
